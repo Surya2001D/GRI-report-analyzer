@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GRI Report Analyzer</title>
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.2/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-image: url('background-image.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        .carousel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: -1;
+        }
+
+        .carousel-inner {
+            height: 100vh;
+        }
+
+        .carousel-item {
+            transition: opacity 1s ease-in-out;
+        }
+
+        .carousel-item.active {
+            opacity: 1;
+        }
+
+        .carousel-item img {
+            object-fit: cover;
+            width: 100%;
+            height: 100vh;
+        }
+
+        .container {
+            padding: 40px;
+            text-align: center;
+            color: #ffffff;
+        }
+
+        .highlight-container {
+            background-color: rgb(0 0 0 / 80%);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .highlight-container h1 {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .highlight-container .form-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .file-input {
+            margin-bottom: 20px;
+        }
+
+        .file-input input[type="file"] {
+            display: none;
+        }
+
+        .file-input label {
+            display: block;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            background-color: #f5f5f5;
+            transition: background-color 0.3s ease;
+        }
+
+        .file-input label:hover {
+            background-color: #ebebeb;
+        }
+
+        .file-input label span {
+            font-size: 18px;
+            font-weight: 700;
+            color: #555555;
+        }
+
+        .file-input .selected-file {
+            font-size: 14px;
+            margin-top: 10px;
+            color: #555555;
+        }
+
+        .submit-button {
+            text-align: center;
+        }
+
+        .submit-button input[type="submit"] {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .submit-button input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        .plot-container {
+            margin-top: 40px;
+            background-color: rgb(49 47 47 / 80%);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+         .plot-container img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .plot-container .zoom-in {
+            display: block;
+            margin-top: 20px;
+            text-align: center;
+           }
+
+    </style>
+</head>
+
+<body>
+    <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-inner">
+            <div class="carousel-item active">
+                <img src="https://media.licdn.com/dms/image/D4D12AQFigkyvGCy1Mg/article-cover_image-shrink_720_1280/0/1680476279702?e=2147483647&v=beta&t=IRBasXVArMa8mVSAIcQQ4WiNn8xHbDaQMe1zxYUZBf4" alt="Image 1">
+            </div>
+            <div class="carousel-item">
+                <img src="https://www.builtinaustin.com/cdn-cgi/image/f=auto,fit=contain/sites/www.builtinaustin.com/files/styles/ckeditor_optimize/public/inline-images/trendkit-texas-tech-companies.jpg" alt="Image 2">
+            </div>
+            <div class="carousel-item">
+                <img src="https://www.builtinsf.com/cdn-cgi/image/f=auto,fit=contain/sites/www.builtinsf.com/files/styles/ckeditor_optimize/public/inline-images/FlextonInc.-tech-companies-San-Jose.jpg" alt="Image 3">
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="highlight-container">
+            <h1>GRI REPORT ANALYZER</h1>
+            <div class="form-title">Submit your file here!</div>
+            <form method="POST" action="" enctype="multipart/form-data">
+                <div class="file-input">
+                    <input type="file" name="txt_file" id="file-input" accept=".pdf">
+                    <label for="file-input" id="file-label">
+                        <span>Choose a PDF file</span>
+                    </label>
+                    <div class="selected-file" id="selected-file"></div>
+                </div>
+                <div class="submit-button">
+                    <input type="submit" name="submit_form" value="Submit">
+                </div>
+            </form>
+        </div>
+        {% if plot_data %}
+        <div class="container plot-container">
+            <h2>Cluster Label Distribution</h2>
+            <img src="data:image/png;base64,{{ plot_data }}" alt="Cluster Labels" width="800" height="400">
+
+        </div>
+        {% endif %}
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.0.2/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const fileInput = document.getElementById('file-input');
+        const fileLabel = document.getElementById('file-label');
+        const selectedFile = document.getElementById('selected-file');
+
+        fileInput.addEventListener('change', function () {
+            const fileName = this.value.split('\\').pop();
+            if (fileName) {
+                fileLabel.querySelector('span').textContent = fileName;
+                selectedFile.textContent = `Selected file: ${fileName}`;
+            } else {
+                fileLabel.querySelector('span').textContent = 'Choose a PDF file';
+                selectedFile.textContent = '';
+            }
+        });
+    </script>
+</body>
+
+</html>
